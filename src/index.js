@@ -7,8 +7,6 @@ function expressionCalculator(str) {
     
     // Передалаем в ОПЗ
 
-    //var str = '1 + 2) * 3';
-
     var arr = [];
     var Out = '';
     var number;
@@ -24,21 +22,30 @@ function expressionCalculator(str) {
         return 0;
     }
 
+
+
     for (var i = 0; i < str.length; i++) {
 
         if (str[i] === ' ') continue;
 
-        if (str[i] === '(') {
+        if (str[i] === '(' ) {
 
             arr.push('(');
             continue;
         }
 
-        if (str[i] === ')') {            
+        if (str[i] === ')' ) {   
+            
+            if (arr.length === 0) {
+                throw new Error('ExpressionError: Brackets must be paired');               
+            }
 
             while(arr[arr.length - 1] !== '(') {
 
-                Out +=  arr.pop();
+                // если уже достали ласт элемент, а открывающей скобки нету
+                if ( arr.length  === 1)  throw new Error('ExpressionError: Brackets must be paired');                   
+                
+                Out +=  arr.pop();                
             }
             arr.pop(); // достаем открывающую скобку
             continue;
@@ -55,14 +62,17 @@ function expressionCalculator(str) {
             continue;
         }   
         
-        // Если это число
-        // двузначное
-        if (str[i+1] !== undefined && str[i+1]){
-            //console.log('    ' + i +  '    ' + str[i]);
+        if ( (str[i+1] !== undefined && str[i+1] !== ' ' && str[i+1] >= 0)  &&  ( str[i+2] !== undefined && str[i+2] !== ' ' && str[i+2] >= 0  )  ) {
+
+            number = (str[i] + str[i+1] + str[i+2]) + ' ';
+            i += 2;
+
+        } else  if ( (str[i+1] !== undefined && str[i+1] !== ' ' && str[i+1] >= 0) ){
+
             number = (str[i] + str[i+1]) + ' ';
             i++;
+
         } else {    // однозначное
-            //console.log(i +  '    ' + str[i]);
             number = str[i] + ' ';
         }
 
@@ -71,10 +81,11 @@ function expressionCalculator(str) {
     }
     // Достаем оставшиеся знаки из стека
     while (arr.length !== 0) {
+
+        if (arr[arr.length - 1] === '(')
+            throw new Error('ExpressionError: Brackets must be paired');
         Out += arr.pop();
     }
-
-    //console.log(Out);
 
     var n2, n1, result;
 
@@ -84,14 +95,16 @@ function expressionCalculator(str) {
 
         if ( Out[i] >= 0 ) {  // Проверка на число
 
-            //console.log(Out[i] + '    ' +  Out[ i + 1 ]);
-            if (Out[i + 1] >= 0) {
+            if (Out[i + 1] >= 0 && Out[i+1] !== ' ' && Out[i+2] >= 0 && Out[i+2] !== ' ' ) {
+
+                number = ( Out[i] + Out[i+1] + Out[i+2] ) * 1;
+                i += 2;
+            } else if (Out[i + 1] >= 0) {
                 number = ( Out[i] + Out[i+1] ) * 1;
                 i++;
             } else {
                 number = Out[i]  * 1;
             }
-            //console.log('number -   ' + number);
             arr.push(number);
 
         } else {
@@ -110,8 +123,6 @@ function expressionCalculator(str) {
             arr.push(result);            
         }
     }   
-    //console.log(Out);
-    //console.log(arr);
     return arr[0];
 }
 
